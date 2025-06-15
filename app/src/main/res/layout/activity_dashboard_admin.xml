@@ -7,6 +7,7 @@
     android:background="@drawable/back01"
     tools:context=".DashboardAdminActivity">
 
+    <!--Toolbar-->
     <RelativeLayout
         android:id="@+id/toolbarRl"
         android:layout_width="match_parent"
@@ -41,9 +42,68 @@
             android:layout_marginEnd="10dp"
             android:src="@drawable/ic_logout_white"
             android:background="@android:color/transparent" />
-
-
-
     </RelativeLayout>
 
+    <!-- Search -->
+    <EditText
+        android:id="@+id/searchEt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbarRl"
+        android:hint="Search"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginTop="10dp"
+        android:drawableStart="@drawable/ic_search_gray"
+        android:padding="10dp"
+        android:background="@color/white"
+        android:textColorHint="@color/gray01" />
+
+
+    <!-- Categories -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/categoriesRv"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:listitem="@layout/row_category"
+        android:layout_below="@id/searchEt"
+        android:layout_margin="5dp"
+        android:layout_above="@id/bottomLl"
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager" />
+
+
+    <LinearLayout
+        android:id="@+id/bottomLl"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="10dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="10dp"
+        android:orientation="horizontal">
+
+
+        <!---Add Category-->
+        <Button
+            android:id="@+id/addCategoryBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Add Category"
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:background="@drawable/shape_button01"
+            android:minHeight="50dp"
+            android:textColor="@color/white"/>
+
+        <!--Add Pdf-->
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addPdfFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_pdf_add_white"
+            app:tint="@color/white"
+            app:fabCustomSize="56dp"
+            app:backgroundTint="@color/purple_500"/>
+    </LinearLayout>
 </RelativeLayout>
