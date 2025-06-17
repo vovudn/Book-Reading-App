@@ -6,14 +6,12 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 
-import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
+import com.example.bookapp.adapters.AdapterCategory;
 import com.example.bookapp.databinding.ActivityDashboardAdminBinding;
+import com.example.bookapp.models.ModelCategory;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -55,10 +53,9 @@ public class DashboardAdminActivity extends AppCompatActivity {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
                 // Không cần xử lý gì trước khi text thay đổi
-                try{
+                try {
                     adapterCategory.getFilter().filter(s);
-                }
-                catch (Exception e){
+                } catch (Exception e) {
 
                 }
             }
@@ -90,7 +87,19 @@ public class DashboardAdminActivity extends AppCompatActivity {
                 startActivity(new Intent(DashboardAdminActivity.this, CategoryAddActivity.class));
             }
         });
+
+        //handle click, start pdf add screen
+        binding.addPdfFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(new Intent(DashboardAdminActivity.this, PdfAddActivity.class));
+            }
+        });
     }
+
+
+
+
 
     private void loadCategories() {
         categoryArrayList = new ArrayList<>();
