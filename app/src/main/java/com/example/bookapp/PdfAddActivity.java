@@ -191,7 +191,11 @@ public class PdfAddActivity extends AppCompatActivity {
         hashMap.put("url", "" + uploadedPdfUrl);
         hashMap.put("timestamp", timestamp);
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Books");
+        DatabaseReference ref = FirebaseDatabase
+                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getReference()
+                .child("Books");
+
         ref.child("" + timestamp).setValue(hashMap)
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
@@ -216,7 +220,10 @@ public class PdfAddActivity extends AppCompatActivity {
         categoryTitleArrayList = new ArrayList<>();
         categoryIdArrayList = new ArrayList<>();
         // db reference to load categories... db > Categories
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Categories");
+        DatabaseReference ref = FirebaseDatabase
+                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getReference()
+                .child("Categories");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NotNull DataSnapshot snapshot) {

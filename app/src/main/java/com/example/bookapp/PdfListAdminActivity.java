@@ -89,7 +89,11 @@ public class PdfListAdminActivity extends AppCompatActivity {
         //init list before adding data
         pdfArrayList = new ArrayList<>();
 
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference().child("Books");
+        DatabaseReference ref = FirebaseDatabase
+                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getReference()
+                .child("Books");
+
         ref.orderByChild("categoryId").equalTo(categoryId)
                 .addValueEventListener(new ValueEventListener() {
                     @Override
@@ -104,7 +108,6 @@ public class PdfListAdminActivity extends AppCompatActivity {
 
                             Log.d(TAG, "onDataChange: "+model.getId()+" "+model.getTitle());
                         }
-
                         //setup adapter
                         adapterPdfAdmin = new AdapterPdfAdmin( PdfListAdminActivity.this, pdfArrayList);
                         binding.bookRv.setAdapter(adapterPdfAdmin);
