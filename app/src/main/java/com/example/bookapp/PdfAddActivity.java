@@ -192,7 +192,7 @@ public class PdfAddActivity extends AppCompatActivity {
         hashMap.put("timestamp", timestamp);
 
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://bookappdemo-71ede-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                 .getReference()
                 .child("Books");
 
@@ -221,7 +221,7 @@ public class PdfAddActivity extends AppCompatActivity {
         categoryIdArrayList = new ArrayList<>();
         // db reference to load categories... db > Categories
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://bookappdemo-71ede-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                 .getReference()
                 .child("Categories");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -283,33 +283,71 @@ public class PdfAddActivity extends AppCompatActivity {
 //        startActivityForResult(Intent.createChooser(intent, "Select Pdf"), PDF_PICK_CODE);
 //    }
 
-    private void pdfPickIntent() {
-        Log.d(TAG, "pdfPickIntent: starting pdf pick intent");
+//    private void pdfPickIntent() {
+//        Log.d(TAG, "pdfPickIntent: starting pdf pick intent");
+//
+//        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+//        intent.setType("application/pdf");
+//        intent.addCategory(Intent.CATEGORY_OPENABLE);
+//        startActivityForResult(intent, PDF_PICK_CODE);
+//    }
 
+    private void pdfPickIntent() {
         Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("application/pdf");
         intent.addCategory(Intent.CATEGORY_OPENABLE);
+        intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+        intent.addFlags(Intent.FLAG_GRANT_PERSISTABLE_URI_PERMISSION); // ✅ cực kỳ quan trọng
         startActivityForResult(intent, PDF_PICK_CODE);
     }
 
 
 
+
+
+//    @Override
+//    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+//        super.onActivityResult(requestCode, resultCode, data);
+//
+//        if (resultCode == RESULT_OK) {
+//            if (requestCode == PDF_PICK_CODE) {
+//                Log.d(TAG, "onActivityResult: PDF picked");
+//
+//                pdfUri = data.getData();
+//
+//                Log.d(TAG, "onActivityResult: URI: " + pdfUri);
+//            }
+//        }
+//        else {
+//            Log.d(TAG, "onActivityResult: cancelled picking pdf");
+//            Toast.makeText(this,"cancelled picking pdf", Toast.LENGTH_SHORT).show();
+//        }
+//    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode == RESULT_OK) {
-            if (requestCode == PDF_PICK_CODE) {
-                Log.d(TAG, "onActivityResult: PDF picked");
+        if (resultCode == RESULT_OK && requestCode == PDF_PICK_CODE && data != null) {
+            pdfUri = data.getData();
+            Log.d(TAG, "onActivityResult: URI: " + pdfUri);
 
-                pdfUri = data.getData();
-
-                Log.d(TAG, "onActivityResult: URI: " + pdfUri);
+            try {
+                getContentResolver().takePersistableUriPermission(
+                        pdfUri,
+                        Intent.FLAG_GRANT_READ_URI_PERMISSION
+                );
+            } catch (Exception e) {
+                Log.e(TAG, "Permission persist error: " + e.getMessage());
             }
-        }
-        else {
-            Log.d(TAG, "onActivityResult: cancelled picking pdf");
-            Toast.makeText(this,"cancelled picking pdf", Toast.LENGTH_SHORT).show();
+
+            Toast.makeText(this, "PDF selected", Toast.LENGTH_SHORT).show();
         }
     }
+
+
+
+
+
 }

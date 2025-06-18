@@ -90,7 +90,7 @@ public class PdfListAdminActivity extends AppCompatActivity {
         pdfArrayList = new ArrayList<>();
 
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                 .getReference()
                 .child("Books");
 

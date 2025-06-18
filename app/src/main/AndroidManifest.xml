@@ -13,6 +13,8 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MaterialComponents.Light.NoActionBar"
         tools:targetApi="31">
+
+
         <activity
             android:name=".PdfListAdminActivity"
             android:exported="false" />
@@ -36,7 +38,8 @@
             android:exported="false" />
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop" />
         <activity
             android:name=".SplashActivity"
             android:exported="true">

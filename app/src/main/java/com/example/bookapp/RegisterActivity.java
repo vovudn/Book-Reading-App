@@ -215,8 +215,6 @@ public class RegisterActivity extends AppCompatActivity {
 //                });
 //    }
 
-
-
     private void updateUserInfo(String uid) {
         long timestamp = System.currentTimeMillis();
 
@@ -229,7 +227,7 @@ public class RegisterActivity extends AppCompatActivity {
         hashMap.put("timestamp", timestamp);
 
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://bookappdemo-71ede-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                 .getReference("Users");
 
         ref.child(uid).setValue(hashMap)

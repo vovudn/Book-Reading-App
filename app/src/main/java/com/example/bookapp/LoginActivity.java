@@ -123,7 +123,7 @@ public class LoginActivity extends AppCompatActivity {
 
         // check in db
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://bookappdemo-71ede-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                 .getReference("Users");
 
         ref.child(firebaseUser.getUid())

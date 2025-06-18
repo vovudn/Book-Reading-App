@@ -1,14 +1,14 @@
 {
   "project_info": {
-    "project_number": "903798178935",
-    "firebase_url": "https://bookappdemo-71ede-default-rtdb.asia-southeast1.firebasedatabase.app",
-    "project_id": "bookappdemo-71ede",
-    "storage_bucket": "bookappdemo-71ede.firebasestorage.app"
+    "project_number": "159387601448",
+    "firebase_url": "https://hellodemo-8dae1-default-rtdb.firebaseio.com",
+    "project_id": "hellodemo-8dae1",
+    "storage_bucket": "hellodemo-8dae1.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:903798178935:android:c9c7df9e40eef66670b272",
+        "mobilesdk_app_id": "1:159387601448:android:308e52bf9c69e4b567c31d",
         "android_client_info": {
           "package_name": "com.example.bookapp"
         }
@@ -16,7 +16,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyDbfnil4XJcwjYoVdk8L7VvWzluWOJQq50"
+          "current_key": "AIzaSyA7EheSN55fzmL0_vWBymC94y4ph57B1iM"
         }
       ],
       "services": {
