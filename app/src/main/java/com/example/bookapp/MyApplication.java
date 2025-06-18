@@ -3,7 +3,10 @@ package com.example.bookapp;
 import static com.example.bookapp.Constants.MAX_BYTES_PDF;
 
 import android.app.Application;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.os.Build;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -39,9 +42,26 @@ import android.content.Context;
 //application class runs before your launcher activity
 public class MyApplication extends Application {
 
+    public static final String CHANNEL_ID = "book_notification_channel";
+
     @Override
     public void onCreate() {
         super.onCreate();
+        createNotificationChannel();
+    }
+
+    private void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(
+                    CHANNEL_ID,
+                    "Book Notifications",
+                    NotificationManager.IMPORTANCE_DEFAULT
+            );
+            channel.setDescription("Notifications when new books are added");
+
+            NotificationManager manager = getSystemService(NotificationManager.class);
+            manager.createNotificationChannel(channel);
+        }
     }
 
     //created a static method to convert timestamp to proper date format, so we can use it everywhere in project, no need to rewrite again

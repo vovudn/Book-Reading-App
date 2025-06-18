@@ -37,6 +37,7 @@ android {
 dependencies {
     // Sử dụng Firebase BoM để đồng bộ tất cả phiên bản Firebase
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
+    implementation 'com.google.firebase:firebase-messaging:23.4.1'
 
     // Firebase SDK (đã đồng bộ theo bom)
     implementation 'com.google.firebase:firebase-auth-ktx'
