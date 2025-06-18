@@ -54,28 +54,27 @@ public class MyApplication extends Application {
 
         return date;
     }
-
     public static void deleteBook(Context context, String bookId, String bookUrl, String bookTitle) {
-        String TAG ="DELETE_BOOK_TAG";
+        String TAG = "DELETE_BOOK_TAG";
 
-        Log.d(TAG, "msg: deleteBook: Deleting...");
+        Log.d(TAG, "deleteBook: Deleting...");
         ProgressDialog progressDialog = new ProgressDialog(context);
         progressDialog.setTitle("Please wait");
-        progressDialog.setMessage("Deleting " + bookTitle + "..."); //e.g. Deleting Book ABC ...
+        progressDialog.setMessage("Deleting " + bookTitle + "...");
         progressDialog.show();
 
-        Log.d(TAG, "msg: deleteBook: Deleting from storage...");
-        StorageReference storageReference = FirebaseStorage.getInstance().getReference("book");
+        Log.d(TAG, "deleteBook: Deleting from storage...");
+        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(bookUrl);
         storageReference.delete()
                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                     @Override
                     public void onSuccess(Void unused) {
-                        Log.d(TAG, "msg: onSuccess: Deleted from storage");
+                        Log.d(TAG, "onSuccess: Deleted from storage");
 
-                        Log.d(TAG, "msg: onSuccess: Now deleting info from db");
-                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference();
-                        reference.child(bookId) // DatabaseReference
-                                .removeValue() // Task<Void>
+                        Log.d(TAG, "onSuccess: Now deleting info from db");
+                        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Books");
+                        reference.child(bookId)
+                                .removeValue()
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
                                     @Override
                                     public void onSuccess(Void unused) {
@@ -87,9 +86,9 @@ public class MyApplication extends Application {
                                 .addOnFailureListener(new OnFailureListener() {
                                     @Override
                                     public void onFailure(@NonNull Exception e) {
-                                        Log.d(TAG, "onFailure: Fail to delete from db due to"+ e.getMessage());
+                                        Log.d(TAG, "onFailure: Failed to delete from db due to " + e.getMessage());
                                         progressDialog.dismiss();
-                                        Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(context, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                                     }
                                 });
                     }
@@ -97,12 +96,13 @@ public class MyApplication extends Application {
                 .addOnFailureListener(new OnFailureListener() {
                     @Override
                     public void onFailure(@NonNull Exception e) {
-                        Log.d(TAG, "msg: onFailure: Failed to delete from storage due to "+e.getMessage());
+                        Log.d(TAG, "onFailure: Failed to delete from storage due to " + e.getMessage());
                         progressDialog.dismiss();
-                        Toast.makeText(context, ""+e.getMessage(), Toast.LENGTH_SHORT).show();
+                        Toast.makeText(context, "" + e.getMessage(), Toast.LENGTH_SHORT).show();
                     }
                 });
     }
+
 
     public static void loadPdfSize(String pdfUrl, String pdfTitle, TextView sizeTv) {
         String TAG="PDF_SIZE_TAG";
