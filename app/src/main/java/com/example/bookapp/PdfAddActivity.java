@@ -192,7 +192,7 @@ public class PdfAddActivity extends AppCompatActivity {
         hashMap.put("timestamp", timestamp);
 
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://bookappdemo-71ede-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference()
                 .child("Books");
 
@@ -221,7 +221,7 @@ public class PdfAddActivity extends AppCompatActivity {
         categoryIdArrayList = new ArrayList<>();
         // db reference to load categories... db > Categories
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://bookappdemo-71ede-default-rtdb.asia-southeast1.firebasedatabase.app")
                 .getReference()
                 .child("Categories");
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -274,14 +274,25 @@ public class PdfAddActivity extends AppCompatActivity {
                 .show();
     }
 
+//    private void pdfPickIntent() {
+//        Log.d(TAG, "pdfPickIntent: starting pdf pick intent");
+//
+//        Intent intent = new Intent();
+//        intent.setType("application/pdf");
+//        intent.setAction(Intent.ACTION_GET_CONTENT);
+//        startActivityForResult(Intent.createChooser(intent, "Select Pdf"), PDF_PICK_CODE);
+//    }
+
     private void pdfPickIntent() {
         Log.d(TAG, "pdfPickIntent: starting pdf pick intent");
 
-        Intent intent = new Intent();
+        Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
         intent.setType("application/pdf");
-        intent.setAction(Intent.ACTION_GET_CONTENT);
-        startActivityForResult(Intent.createChooser(intent, "Select Pdf"), PDF_PICK_CODE);
+        intent.addCategory(Intent.CATEGORY_OPENABLE);
+        startActivityForResult(intent, PDF_PICK_CODE);
     }
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
