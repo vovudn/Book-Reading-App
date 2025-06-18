@@ -4,14 +4,15 @@ public class ModelPdf {
 
     // Variables
     String uid, id, title, description, categoryId, url;
-    long timestamp;
+    long timestamp, viewsCount,downloadsCount;
 
     // Empty constructor, required for Firebase
     public ModelPdf() {
     }
 
     // Constructor with all params
-    public ModelPdf(String uid, String id, String title, String description, String categoryId, String url, long timestamp) {
+
+    public ModelPdf(String uid, String id, String title, String description, String categoryId, String url, long timestamp, long viewsCount, long downloadsCount) {
         this.uid = uid;
         this.id = id;
         this.title = title;
@@ -19,48 +20,20 @@ public class ModelPdf {
         this.categoryId = categoryId;
         this.url = url;
         this.timestamp = timestamp;
+        this.viewsCount = viewsCount;
+        this.downloadsCount = downloadsCount;
     }
+
 
     // ---- Getter/Setters ----
 
-    public long getTimestamp() {
-        return timestamp;
+
+    public String getUid() {
+        return uid;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public String getCategoryId() {
-        return categoryId;
-    }
-
-    public void setCategoryId(String categoryId) {
-        this.categoryId = categoryId;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
+    public void setUid(String uid) {
+        this.uid = uid;
     }
 
     public String getId() {
@@ -71,12 +44,60 @@ public class ModelPdf {
         this.id = id;
     }
 
-    public String getUid() {
-        return uid;
+    public String getTitle() {
+        return title;
     }
 
-    public void setUid(String uid) {
-        this.uid = uid;
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public String getCategoryId() {
+        return categoryId;
+    }
+
+    public void setCategoryId(String categoryId) {
+        this.categoryId = categoryId;
+    }
+
+    public String getUrl() {
+        return url;
+    }
+
+    public void setUrl(String url) {
+        this.url = url;
+    }
+
+    public long getTimestamp() {
+        return timestamp;
+    }
+
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
+    }
+
+    public long getViewsCount() {
+        return viewsCount;
+    }
+
+    public void setViewsCount(long viewsCount) {
+        this.viewsCount = viewsCount;
+    }
+
+    public long getDownloadsCount() {
+        return downloadsCount;
+    }
+
+    public void setDownloadsCount(long downloadsCount) {
+        this.downloadsCount = downloadsCount;
     }
 }
 
