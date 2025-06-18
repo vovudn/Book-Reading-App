@@ -89,7 +89,7 @@ public class CategoryAddActivity extends AppCompatActivity {
 
         // add to firebase db..... Database Root > Categories > categoryId > category info
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                 .getReference("Categories");
         ref.child("" + timestamp)
                 .setValue(hashMap)

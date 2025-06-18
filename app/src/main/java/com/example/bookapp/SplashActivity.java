@@ -53,16 +53,14 @@ public class SplashActivity extends AppCompatActivity {
         else {
             // user logged in, check user type, same as done in login screen
             DatabaseReference ref = FirebaseDatabase
-                    .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                    .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                     .getReference("Users");
-
             ref.child(firebaseUser.getUid())
                     .addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(DataSnapshot snapshot) {
                             // get user type
                             String userType = "" + snapshot.child("userType").getValue();
-
                             // check user type
                             if (userType.equals("user")) {
                                 // this is simple user, open user dashboard

@@ -105,7 +105,7 @@ public class DashboardAdminActivity extends AppCompatActivity {
         categoryArrayList = new ArrayList<>();
 
         DatabaseReference ref = FirebaseDatabase
-                .getInstance("https://book-app-ftpu-default-rtdb.asia-southeast1.firebasedatabase.app")
+                .getInstance("https://hellodemo-8dae1-default-rtdb.firebaseio.com/")
                 .getReference("Categories");
 
         ref.addValueEventListener(new ValueEventListener() {
