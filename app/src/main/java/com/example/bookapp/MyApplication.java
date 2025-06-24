@@ -4,6 +4,12 @@ import static com.example.bookapp.Constants.MAX_BYTES_PDF;
 
 import android.app.Application;
 import android.app.ProgressDialog;
+import android.content.ContentResolver;
+import android.content.ContentValues;
+import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
@@ -30,6 +36,9 @@ import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageMetadata;
 import com.google.firebase.storage.StorageReference;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Locale;
@@ -39,6 +48,7 @@ import android.content.Context;
 //application class runs before your launcher activity
 public class MyApplication extends Application {
 
+    private static final String TAG_DOWNLOAD = "DOWNLOAD_TAG";
     @Override
     public void onCreate() {
         super.onCreate();
@@ -242,4 +252,208 @@ public class MyApplication extends Application {
                     }
                 });
     }
+
+//    public static void downloadBook(Context context, String bookId, String bookTitle, String bookUrl) {
+//        Log.d(TAG_DOWNLOAD, "downloadBook: bắt đầu...");
+//
+//        // Tạo tên file PDF từ tiêu đề sách
+//        String fileName = bookTitle + ".pdf";
+//        Log.d(TAG_DOWNLOAD, "Tên file tải xuống: " + fileName);
+//
+//        // Hiển thị ProgressDialog
+//        ProgressDialog progressDialog = new ProgressDialog(context);
+//        progressDialog.setTitle("Vui lòng chờ");
+//        progressDialog.setMessage("Đang tải xuống: " + fileName);
+//        progressDialog.setCanceledOnTouchOutside(false);
+//        progressDialog.show();
+//
+//        // Tải từ Firebase Storage
+//        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(bookUrl);
+//        storageRef.getBytes(MAX_BYTES_PDF)
+//                .addOnSuccessListener(bytes -> {
+//                    Log.d(TAG_DOWNLOAD, "Tải thành công: Book Downloaded");
+//                    Log.d(TAG_DOWNLOAD, "Đang lưu sách...");
+//
+//                    saveDownloadedBook(context, progressDialog, bytes, fileName, bookId);
+//                })
+//                .addOnFailureListener(e -> {
+//                    Log.e(TAG_DOWNLOAD, "Lỗi tải file: " + e.getMessage());
+//                    progressDialog.dismiss();
+//                    Toast.makeText(context, "Tải thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+//                });
+//    }
+
+
+    public static void downloadBook(Context context, String bookId, String bookTitle, String bookUrl) {
+        Log.d(TAG_DOWNLOAD, "downloadBook: bắt đầu...");
+
+        String fileName = bookTitle + ".pdf";
+        Log.d(TAG_DOWNLOAD, "Tên file tải xuống: " + fileName);
+
+        ProgressDialog progressDialog = new ProgressDialog(context);
+        progressDialog.setTitle("Vui lòng chờ");
+        progressDialog.setMessage("Đang tải xuống: " + fileName);
+        progressDialog.setCanceledOnTouchOutside(false);
+        progressDialog.show();
+
+        StorageReference storageRef = FirebaseStorage.getInstance().getReferenceFromUrl(bookUrl);
+        storageRef.getBytes(MAX_BYTES_PDF)
+                .addOnSuccessListener(bytes -> {
+                    Log.d(TAG_DOWNLOAD, "Tải thành công, đang lưu sách...");
+                    savePdfToDownloads(context, bytes, fileName);
+                    progressDialog.dismiss();
+                    incrementBookDownloadCount(bookId);
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG_DOWNLOAD, "Lỗi tải file: " + e.getMessage());
+                    progressDialog.dismiss();
+                    Toast.makeText(context, "Tải thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                });
+    }
+
+    public static void savePdfToDownloads(Context context, byte[] bytes, String fileName) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            // API 29+ → dùng MediaStore
+            try {
+                ContentValues values = new ContentValues();
+                values.put(MediaStore.Downloads.DISPLAY_NAME, fileName);
+                values.put(MediaStore.Downloads.MIME_TYPE, "application/pdf");
+                values.put(MediaStore.Downloads.IS_PENDING, 1);
+
+                Uri collection = MediaStore.Downloads.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+                ContentResolver resolver = context.getContentResolver();
+                Uri fileUri = resolver.insert(collection, values);
+
+                if (fileUri != null) {
+                    try (OutputStream out = resolver.openOutputStream(fileUri)) {
+                        out.write(bytes);
+                        out.flush();
+                    }
+
+                    values.clear();
+                    values.put(MediaStore.Downloads.IS_PENDING, 0);
+                    resolver.update(fileUri, values, null, null);
+
+                    Toast.makeText(context, "Đã lưu vào Downloads (API 29+)", Toast.LENGTH_SHORT).show();
+                    Log.d(TAG_DOWNLOAD, "Đã lưu bằng MediaStore: " + fileName);
+                }
+
+            } catch (Exception e) {
+                Log.e(TAG_DOWNLOAD, "Lỗi lưu bằng MediaStore: " + e.getMessage());
+                Toast.makeText(context, "Lỗi MediaStore: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        } else {
+            // API < 29 → fallback sang cách cũ (cần WRITE_EXTERNAL_STORAGE)
+            savePdfToDownloadsLegacy(context, bytes, fileName);
+        }
+    }
+
+    private static void savePdfToDownloadsLegacy(Context context, byte[] bytes, String fileName) {
+        try {
+            File downloadsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsFolder.exists()) {
+                downloadsFolder.mkdirs();
+            }
+
+            File file = new File(downloadsFolder, fileName);
+            FileOutputStream fos = new FileOutputStream(file);
+            fos.write(bytes);
+            fos.close();
+
+            Toast.makeText(context, "Đã lưu vào Downloads (legacy)", Toast.LENGTH_SHORT).show();
+            Log.d(TAG_DOWNLOAD, "Lưu bằng legacy: " + file.getAbsolutePath());
+        } catch (Exception e) {
+            Toast.makeText(context, "Lỗi lưu legacy: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Log.e(TAG_DOWNLOAD, "Lỗi legacy: " + e.getMessage());
+        }
+    }
+
+    private static void saveDownloadedBook(Context context, ProgressDialog progressDialog, byte[] bytes, String nameWithExtension, String bookId) {
+        Log.d(TAG_DOWNLOAD, "saveDownloadedBook: bắt đầu lưu sách...");
+
+        try {
+            // Tạo thư mục Download mặc định
+            File downloadsFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+            if (!downloadsFolder.exists()) {
+                downloadsFolder.mkdirs();
+            }
+
+            // Đường dẫn đến file
+            String filePath = new File(downloadsFolder, nameWithExtension).getAbsolutePath();
+
+            // Ghi dữ liệu ra file
+            FileOutputStream out = new FileOutputStream(filePath);
+            out.write(bytes);
+            out.close();
+
+            // Hiển thị kết quả thành công
+            Toast.makeText(context, "Đã lưu vào thư mục Downloads", Toast.LENGTH_SHORT).show();
+            Log.d(TAG_DOWNLOAD, "Đã lưu file: " + filePath);
+
+            // Đóng progress dialog
+            progressDialog.dismiss();
+
+            // Cập nhật số lượt tải
+            incrementBookDownloadCount(bookId);
+
+        } catch (Exception e) {
+            Log.e(TAG_DOWNLOAD, "Lỗi lưu sách: " + e.getMessage());
+            Toast.makeText(context, "Lưu file thất bại: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            progressDialog.dismiss();
+        }
+    }
+
+    private static void incrementBookDownloadCount(String bookId) {
+        Log.d(TAG_DOWNLOAD, "Incrementing Book Download Count...");
+
+        // Step 1: Lấy dữ liệu hiện tại
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("Books");
+
+        ref.child(bookId).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                String downloadsCountStr = "" + snapshot.child("downloadsCount").getValue();
+                Log.d(TAG_DOWNLOAD, "onDataChange: Downloads Count = " + downloadsCountStr);
+
+                // Nếu rỗng hoặc null thì gán = 0
+                if (downloadsCountStr.equals("") || downloadsCountStr.equals("null")) {
+                    downloadsCountStr = "0";
+                }
+
+                // Tăng 1 lượt tải
+                long newDownloadsCount = Long.parseLong(downloadsCountStr) + 1;
+                Log.d(TAG_DOWNLOAD, "onDataChange: New Downloads Count = " + newDownloadsCount);
+
+                // Tạo HashMap để update
+                HashMap<String, Object> updateMap = new HashMap<>();
+                updateMap.put("downloadsCount", newDownloadsCount);
+
+                // Cập nhật lại vào Firebase
+                DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Books");
+                reference.child(bookId).updateChildren(updateMap)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void unused) {
+                                Log.d(TAG_DOWNLOAD, "onSuccess: Downloads Count updated!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.e(TAG_DOWNLOAD, "onFailure: Failed to update Downloads Count - " + e.getMessage());
+                            }
+                        });
+            }
+
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG_DOWNLOAD, "Lỗi đọc dữ liệu: " + error.getMessage());
+            }
+        });
+    }
+
+
+
 }
