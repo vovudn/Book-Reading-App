@@ -1,4 +1,4 @@
-package com.example.bookapp;
+package com.example.bookapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,6 +14,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import com.example.bookapp.R;
 import com.example.bookapp.adapters.AdapterPdfAdmin;
 import com.example.bookapp.databinding.ActivityPdfListAdminBinding;
 import com.example.bookapp.models.ModelPdf;
