@@ -12,7 +12,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bookapp.MyApplication;
+import com.example.bookapp.R;
 import com.example.bookapp.databinding.ActivityPdfDetailBinding;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -26,6 +28,10 @@ public class PdfDetailActivity extends AppCompatActivity {
 
     //pdf id, get from intent
     String bookId, bookTitle, bookUrl;
+
+    private FirebaseAuth firebaseAuth;
+
+    boolean isInMyFavorite = false;
 
     private static final String TAG_DOWNLOAD = "DOWNLOAD_TAG";
 
@@ -41,6 +47,11 @@ public class PdfDetailActivity extends AppCompatActivity {
 
         //at satart hide download button
         binding.downloadBookBtn.setVisibility(View.GONE);
+
+        firebaseAuth = FirebaseAuth.getInstance();
+        if (firebaseAuth.getCurrentUser() != null) {
+            checkIsFavorite();
+        }
 
         loadBookDetails();
         //increment book view count, whenever this page
@@ -105,6 +116,23 @@ public class PdfDetailActivity extends AppCompatActivity {
             }
         });
 
+        binding.favoriteBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (firebaseAuth.getCurrentUser() == null) {
+                    Toast.makeText(PdfDetailActivity.this,"You're not logged in", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (isInMyFavorite) {
+                        // in favorite, remove from favorite
+                        MyApplication.removeFromFavorite(PdfDetailActivity.this, bookId);
+                    } else {
+                        // not in favorite, add to favorite
+                        MyApplication.addToFavorite(PdfDetailActivity.this, bookId);
+                    }
+                }
+            }
+        });
+
     }
 
     // 1. Khai báo launcher để yêu cầu quyền
@@ -158,14 +186,17 @@ public class PdfDetailActivity extends AppCompatActivity {
                                 ""+bookUrl,
                                  ""+bookTitle,
                                 binding.pdfView,
-                                binding.progressBar
+                                binding.progressBar,
+                                binding.sizeTv
             );
 
                         MyApplication.loadPdfSize(
                                 ""+bookUrl,
                                 ""+bookTitle,
                                 binding.sizeTv
-);
+            );
+
+
 
 //set data
                         binding.titleTv.setText(bookTitle);
@@ -182,5 +213,29 @@ public class PdfDetailActivity extends AppCompatActivity {
                 });
     }
 
+    private void checkIsFavorite() {
+        // logged in check if its in favorite list or not
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference("Users");
+        reference.child(firebaseAuth.getUid()).child("Favorites").child(bookId)
+                .addValueEventListener(new ValueEventListener() {
+                    @Override
+                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                        isInMyFavorite = snapshot.exists(); // true: if exists, false if not exists
+                        if (isInMyFavorite) {
+                            // exists in favorite
+                            binding.favoriteBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_favorite_white,0,0);
+                            binding.favoriteBtn.setText("Remove Favorite");
+                        } else {
+                            // not exists in favorite
+                            binding.favoriteBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_favorite_boder_white,0,0);
+                            binding.favoriteBtn.setText("Add Favorite");
+                        }
+                    }
+
+                    @Override
+                    public void onCancelled(@NonNull DatabaseError error) {
+                    }
+                });
+    }
 
 }

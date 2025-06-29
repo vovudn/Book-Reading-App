@@ -27,6 +27,7 @@ import com.github.barteksc.pdfviewer.listener.OnLoadCompleteListener;
 import com.github.barteksc.pdfviewer.listener.OnPageErrorListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -151,7 +152,7 @@ public class MyApplication extends Application {
                 });
     }
 
-    public static void loadPdfFromUrlSinglePage(String pdfUrl, String pdfTitle, PDFView pdfView, ProgressBar progressBar) {
+    public static void loadPdfFromUrlSinglePage(String pdfUrl, String pdfTitle, PDFView pdfView, ProgressBar progressBar, TextView pagesTv) {
         String TAG="PDF_LOAD_SINGLE_TAG";
 
         StorageReference ref = FirebaseStorage.getInstance().getReferenceFromUrl(pdfUrl);
@@ -187,6 +188,10 @@ public class MyApplication extends Application {
 
                                         progressBar.setVisibility(View.INVISIBLE);
                                         Log.d(TAG, "loadComplete: pdf loaded");
+
+                                        if (pagesTv != null) {
+                                            pagesTv.setText("" + nbPages); // concatenate with double quotes because can't set int in textview
+                                        }
                                     }
                                 })
                                 .load();
@@ -454,6 +459,95 @@ public class MyApplication extends Application {
         });
     }
 
+    //video 12 phút 26:24 xóa
+//    public static void loadPdfPageCount(Context context, String pdfUrl, TextView pagesTv) {
+//        // load pdf file from firebase storage using url
+//        StorageReference storageReference = FirebaseStorage.getInstance().getReferenceFromUrl(pdfUrl);
+//
+//        storageReference
+//                .getBytes(Constants.MAX_BYTES_PDF)
+//                .addOnSuccessListener(new OnSuccessListener<byte[]>() {
+//                    @Override
+//                    public void onSuccess(byte[] bytes) {
+//                        // file received
+//
+//                        // load pdf pages using PdfView library
+//                        PDFView pdfView = new PDFView(context, null);
+//                        pdfView.fromBytes(bytes)
+//                                .onLoad(new OnLoadCompleteListener() {
+//                                    @Override
+//                                    public void loadComplete(int nbPages) {
+//                                        // pdf loaded from bytes we got from firebase storage, we can now show number of pages
+//                                        pagesTv.setText("" + nbPages);
+//                                    }
+//                                });
+//                    }
+//                })
+//                .addOnFailureListener(new OnFailureListener() {
+//                    @Override
+//                    public void onFailure(@NonNull Exception e) {
+//                        // file failed to receive
+//                    }
+//                });
+//    }
 
+    public static void addToFavorite(Context context, String bookId) {
+        // we can add only if user is logged in
+        // 1)Check if user is logged in
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        if (firebaseAuth.getCurrentUser() == null) {
+            // not logged in, cant add to fav
+            Toast.makeText(context, "You're not logged in", Toast.LENGTH_SHORT).show();
+        } else {
+            long timestamp = System.currentTimeMillis();
+
+            // setup data to add in firebase db of current user for favorite book
+            HashMap<String, Object> hashMap = new HashMap<>();
+            hashMap.put("bookId", ""+bookId);
+            hashMap.put("timestamp", ""+timestamp);
+
+            // save to db
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference( "Users");
+            ref.child(firebaseAuth.getUid()).child("Favorites").child(bookId).setValue(hashMap)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(context, "Added to your favoriteslisist...", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(context, "Failed to add to favorite due to " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
+
+    public static void removeFromFavorite(Context context, String bookId) {
+        // we can add remove if user is logged in
+        // 1)Check if user is logged in
+        FirebaseAuth firebaseAuth = FirebaseAuth.getInstance();
+        if (firebaseAuth.getCurrentUser() == null) {
+            // not logged in, cant remove from fav
+            Toast.makeText(context, "You're not logged in", Toast.LENGTH_SHORT).show();
+        } else {
+            // remove from db
+            DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Users");
+            ref.child(firebaseAuth.getUid()).child("Favorites").child(bookId).removeValue()
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void unused) {
+                            Toast.makeText(context, "Removed from your favorites list...", Toast.LENGTH_SHORT).show();
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Toast.makeText(context, "Failed to remove from favorite due to " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+        }
+    }
 
 }
