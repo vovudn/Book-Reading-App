@@ -21,12 +21,15 @@ public class FilterPdfUser extends Filter {
     protected FilterResults performFiltering(CharSequence constraint) {
         FilterResults results = new FilterResults();
 
-        if (constraint != null && constraint.length() > 0) {
-            constraint = constraint.toString().toUpperCase();
+        // Set trạng thái lọc
+        adapterPdfUser.isFiltering = (constraint != null && constraint.length() > 0);
+
+        if (adapterPdfUser.isFiltering) {
+            String query = constraint.toString().toUpperCase();
             ArrayList<ModelPdf> filteredModels = new ArrayList<>();
 
             for (ModelPdf model : filterList) {
-                if (model.getTitle().toUpperCase().contains(constraint)) {
+                if (model.getTitle().toUpperCase().contains(query)) {
                     filteredModels.add(model);
                 }
             }
@@ -47,3 +50,4 @@ public class FilterPdfUser extends Filter {
         adapterPdfUser.notifyDataSetChanged();
     }
 }
+

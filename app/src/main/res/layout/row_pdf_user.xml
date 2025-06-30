@@ -21,10 +21,18 @@
             android:background="@color/gray02">
 
             <!--PdfView-->
-            <com.github.barteksc.pdfviewer.PDFView
-                android:id="@+id/pdfView"
+                <com.github.barteksc.pdfviewer.PDFView
+                    android:id="@+id/pdfView"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+
+            <ImageView
+                android:id="@+id/thumbnailIv"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
+                android:layout_height="200dp"
+                android:scaleType="centerCrop"
+                android:visibility="visible" />
+
 
             <!--Progress Bar-->
             <ProgressBar
@@ -85,9 +93,6 @@
             android:textAlignment="center"
             android:layout_alignParentBottom="true"
             android:maxLines="1" />
-
-
-
 
     </RelativeLayout>
 </androidx.cardview.widget.CardView>
