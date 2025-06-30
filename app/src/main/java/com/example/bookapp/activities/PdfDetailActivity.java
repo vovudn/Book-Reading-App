@@ -13,13 +13,17 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.bookapp.MyApplication;
 import com.example.bookapp.R;
+import com.example.bookapp.adapters.AdapterPdfFavorite;
 import com.example.bookapp.databinding.ActivityPdfDetailBinding;
+import com.example.bookapp.models.ModelPdf;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import java.util.ArrayList;
 
 public class PdfDetailActivity extends AppCompatActivity {
 
@@ -28,10 +32,11 @@ public class PdfDetailActivity extends AppCompatActivity {
 
     //pdf id, get from intent
     String bookId, bookTitle, bookUrl;
-
+    boolean isInMyFavorite = false;
     private FirebaseAuth firebaseAuth;
 
-    boolean isInMyFavorite = false;
+
+
 
     private static final String TAG_DOWNLOAD = "DOWNLOAD_TAG";
 
@@ -56,6 +61,8 @@ public class PdfDetailActivity extends AppCompatActivity {
         loadBookDetails();
         //increment book view count, whenever this page
         MyApplication.incrementBookViewCount(bookId);
+
+
         //handle click, goback
         binding.backBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -134,6 +141,7 @@ public class PdfDetailActivity extends AppCompatActivity {
         });
 
     }
+
 
     // 1. Khai báo launcher để yêu cầu quyền
     private ActivityResultLauncher<String> requestPermissionLauncher =
@@ -227,7 +235,7 @@ public class PdfDetailActivity extends AppCompatActivity {
                             binding.favoriteBtn.setText("Remove Favorite");
                         } else {
                             // not exists in favorite
-                            binding.favoriteBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_favorite_boder_white,0,0);
+                            binding.favoriteBtn.setCompoundDrawablesRelativeWithIntrinsicBounds(0, R.drawable.ic_favorite_border_white,0,0);
                             binding.favoriteBtn.setText("Add Favorite");
                         }
                     }

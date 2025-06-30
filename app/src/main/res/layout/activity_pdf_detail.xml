@@ -278,7 +278,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:drawableTop="@drawable/ic_favorite_boder_white"
+            android:drawableTop="@drawable/ic_favorite_border_white"
             android:text="Add Favorite"
             android:background="@color/design_default_color_primary" />
 
