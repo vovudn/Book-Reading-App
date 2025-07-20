@@ -1,16 +1,15 @@
-package com.example.bookapp;
+package com.example.bookapp.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import com.example.bookapp.databinding.ActivityMainBinding;
+import com.google.firebase.messaging.FirebaseMessaging;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -44,6 +43,16 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(new Intent(MainActivity.this, DashboardAdminActivity.class));
             }
         });
+        FirebaseMessaging.getInstance().subscribeToTopic("all")
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Log.d("FCM", "✅ Subscribed to topic 'all'");
+                    } else {
+                        Log.e("FCM", "❌ Failed to subscribe");
+                    }
+                });
+
+
     }
 
 }
