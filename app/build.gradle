@@ -38,6 +38,7 @@ dependencies {
     // Sử dụng Firebase BoM để đồng bộ tất cả phiên bản Firebase
     implementation platform('com.google.firebase:firebase-bom:32.7.0')
     implementation 'com.google.firebase:firebase-messaging:23.4.1'
+    implementation("com.google.firebase:firebase-appcheck-debug")
 
     // Firebase SDK (đã đồng bộ theo bom)
     implementation 'com.google.firebase:firebase-auth-ktx'
@@ -50,6 +51,13 @@ dependencies {
     implementation 'com.cloudinary:cloudinary-android:2.3.1'
     implementation 'com.github.mhiew:android-pdf-viewer:3.2.0-beta.1'
     implementation 'org.jetbrains:annotations:24.0.1'
+
+    //MomoPayment
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'org.json:json:20210307'
+    implementation 'com.github.momo-wallet:mobile-sdk:1.0.7'
+    implementation 'vn.momo.momo_partner:momo_android_sdk:1.0.7'
+
 
     //glide
     implementation 'com.github.bumptech.glide:glide:4.16.0'
@@ -64,4 +72,6 @@ dependencies {
     testImplementation libs.junit
     androidTestImplementation libs.ext.junit
     androidTestImplementation libs.espresso.core
+
+
 }

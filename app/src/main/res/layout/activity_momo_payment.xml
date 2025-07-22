@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    tools:context=".activities.MomoPaymentActivity">
+
+    <!-- Toolbar -->
+    <RelativeLayout
+        android:id="@+id/toolbarRL"
+        android:layout_width="match_parent"
+        android:layout_height="?actionBarSize"
+        android:background="@drawable/shape_toolbar02">
+
+        <ImageButton
+            android:id="@+id/backBtn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginStart="10dp"
+            android:background="@android:color/transparent"
+            android:src="@drawable/ic_back_white"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="Thanh toán sách"
+            android:textColor="@color/white"
+            android:textStyle="bold"/>
+    </RelativeLayout>
+
+    <!-- Nội dung cuộn -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/toolbarRL"
+        android:layout_above="@+id/bookOptionsLL"
+        android:padding="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Tên sách -->
+            <TextView
+                android:id="@+id/titleTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tên sách"
+                android:textSize="20sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="8dp"/>
+
+            <!-- Tác giả -->
+            <TextView
+                android:id="@+id/authorTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Tác giả"
+                android:layout_marginBottom="4dp"/>
+
+            <!-- Năm xuất bản -->
+            <TextView
+                android:id="@+id/yearTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Năm xuất bản"
+                android:layout_marginBottom="4dp"/>
+
+            <!-- Mô tả -->
+            <TextView
+                android:id="@+id/descriptionTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Mô tả"
+                android:layout_marginBottom="16dp"/>
+
+            <TextView
+                android:id="@+id/categoryTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Thể loại"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/dateTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ngày đăng"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/pagesTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Số trang"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/sizeTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Kích thước"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/viewsTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lượt xem"
+                android:layout_marginBottom="4dp" />
+
+            <TextView
+                android:id="@+id/downloadsTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Lượt tải"
+                android:layout_marginBottom="8dp" />
+            <TextView
+                android:id="@+id/statusTv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Chưa thanh toán"
+                android:textColor="@color/pink"
+                android:textStyle="italic"
+                android:layout_marginBottom="16dp"/>
+
+
+            <!-- Giá tải -->
+            <TextView
+                android:id="@+id/priceTv"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Giá tải: 10.000 VNĐ (tặng thêm 2 lượt tải)"
+                android:textColor="@color/pink"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:layout_marginBottom="24dp"/>
+
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+    <!-- Nút thanh toán -->
+    <LinearLayout
+        android:id="@+id/bookOptionsLL"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="horizontal"
+        android:background="@color/design_default_color_primary">
+
+        <Button
+            android:id="@+id/momoPayBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Thanh toán ngay"
+            android:textAllCaps="false"
+            android:drawableTop="@drawable/ic_payment_white"
+            android:textColor="@color/white"
+            android:background="@color/design_default_color_primary"/>
+    </LinearLayout>
+
+</RelativeLayout>

@@ -101,46 +101,23 @@ public class PdfDetailActivity extends AppCompatActivity {
             }
         });
 
-
-        //handle click, download pdf
-        // handle click, download pdf
-        binding.downloadBookBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG_DOWNLOAD, "onClick: Checking permission");
-
-//                if (ContextCompat.checkSelfPermission(
-//                        PdfDetailActivity.this,
-//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                        == PackageManager.PERMISSION_GRANTED) {
-//
-//                    Log.d(TAG_DOWNLOAD, "onClick: Permission already granted, can download book");
-//
-//                    MyApplication.downloadBook(
-//                            PdfDetailActivity.this,
-//                            "" + bookId,
-//                            "" + bookTitle,
-//                            "" + bookUrl
-//                    );
-//
-//                } else {
-//                    Log.d(TAG_DOWNLOAD, "onClick: Permission was not granted, request permission...");
-//                    requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//                }
-                binding.downloadBookBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d(TAG_DOWNLOAD, "onClick: Bắt đầu tải không cần permission (API >= 29)");
-                        MyApplication.downloadBook(
-                                PdfDetailActivity.this,
-                                bookId,
-                                bookTitle,
-                                bookUrl
-                        );
-                    }
-                });
-
+//        //handle click, download pdf
+//        binding.downloadBookBtn.setOnClickListener(v -> {
+//            Log.d(TAG_DOWNLOAD, "onClick: Bắt đầu tải không cần permission (API >= 29)");
+//            MyApplication.downloadBook(
+//                    PdfDetailActivity.this,
+//                    bookId,
+//                    bookTitle,
+//                    bookUrl
+//            );
+//        });
+        binding.downloadBookBtn.setOnClickListener(v -> {
+            if (firebaseAuth.getCurrentUser() == null) {
+                Toast.makeText(this, "Bạn cần đăng nhập để tải sách", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            checkPaymentAndDownload(bookId, bookTitle, bookUrl);
         });
 
         binding.favoriteBtn.setOnClickListener(new View.OnClickListener() {
@@ -383,5 +360,35 @@ public class PdfDetailActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private void checkPaymentAndDownload(String bookId, String bookTitle, String bookUrl) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(firebaseAuth.getUid())
+                .child("PurchasedBooks")
+                .child(bookId);
+
+        ref.get().addOnSuccessListener(snapshot -> {
+            if (snapshot.exists()) {
+                Long count = snapshot.child("downloadCount").getValue(Long.class);
+                if (count == null) count = 0L;
+
+                if (count >= 3) {
+                    Toast.makeText(this, "Bạn đã tải sách này 3 lần rồi!", Toast.LENGTH_SHORT).show();
+                } else {
+                    MyApplication.downloadBook(this, bookId, bookTitle, bookUrl);
+                    ref.child("downloadCount").setValue(count + 1);
+                }
+            } else {
+                // Chưa thanh toán → chuyển qua trang thanh toán
+                Intent intent = new Intent(this, MomoPaymentActivity.class);
+                intent.putExtra("bookId", bookId);
+                intent.putExtra("bookTitle", bookTitle);
+                intent.putExtra("bookUrl", bookUrl);
+                startActivity(intent);
+            }
+        });
+    }
+
 
 }

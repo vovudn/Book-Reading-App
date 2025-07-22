@@ -11,14 +11,13 @@ pluginManagement {
         gradlePluginPortal()
     }
 }
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
         google()
         mavenCentral()
-        // Thêm JitPack
-        maven { url 'https://jitpack.io' }
-
+        maven { url 'https://jitpack.io' } // cần cho MoMo SDK
     }
 }
 

@@ -61,6 +61,9 @@
             android:name=".activities.LoginActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.MomoPaymentActivity"
+            android:exported="false" />
+        <activity
             android:name=".activities.RegisterActivity"
             android:exported="false" />
         <activity
@@ -76,6 +79,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<!--        <activity-->
+<!--            android:name="vn.momo.momosdk.MomoWebActivity"-->
+<!--            android:configChanges="orientation|screenSize"-->
+<!--            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>-->
+
     </application>
 
 </manifest>
