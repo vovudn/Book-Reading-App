@@ -53,6 +53,11 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Thiết lập AppCheck với Debug Provider
+        com.google.firebase.appcheck.FirebaseAppCheck firebaseAppCheck = com.google.firebase.appcheck.FirebaseAppCheck.getInstance();
+        firebaseAppCheck.installAppCheckProviderFactory(
+                com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory.getInstance()
+        );
     }
 
     //created a static method to convert timestamp to proper date format, so we can use it everywhere in project, no need to rewrite again
