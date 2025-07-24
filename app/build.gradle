@@ -52,11 +52,15 @@ dependencies {
     implementation 'com.github.mhiew:android-pdf-viewer:3.2.0-beta.1'
     implementation 'org.jetbrains:annotations:24.0.1'
 
+
+    implementation("com.squareup.okhttp3:okhttp:4.6.0")
+    implementation("commons-codec:commons-codec:1.14")
+
     //MomoPayment
-    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
-    implementation 'org.json:json:20210307'
-    implementation 'com.github.momo-wallet:mobile-sdk:1.0.7'
-    implementation 'vn.momo.momo_partner:momo_android_sdk:1.0.7'
+//    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+//    implementation 'org.json:json:20210307'
+//    implementation 'com.github.momo-wallet:mobile-sdk:1.0.7'
+//    implementation 'vn.momo.momo_partner:momo_android_sdk:1.0.7'
 
 
     //glide
@@ -67,6 +71,8 @@ dependencies {
     implementation libs.material
     implementation libs.activity
     implementation libs.constraintlayout
+    implementation fileTree(dir: 'D:\\STUDY\\PRM392\\PROJECT\\zalopay', include: ['*.aar', '*.jar'], exclude: [])
+    implementation fileTree(dir: 'D:\\STUDY\\PRM392\\PROJECT\\zalopay\\zpdk_v2.0.4\\zpdk_v2.0.4\\android', include: ['*.aar', '*.jar'], exclude: [])
 
     // Testing
     testImplementation libs.junit

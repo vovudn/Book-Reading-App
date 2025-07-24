@@ -33,6 +33,16 @@
         <activity
             android:name=".activities.PdfDetailActivity"
             android:exported="false" />
+<!--        <activity android:name=".activities.PdfDetailActivity"-->
+<!--            android:exported="true">-->
+<!--            <intent-filter>-->
+<!--                <action android:name="android.intent.action.VIEW" />-->
+<!--                <category android:name="android.intent.category.DEFAULT"/>-->
+<!--                <category android:name="android.intent.category.BROWSABLE"/>-->
+<!--                <data android:scheme="bookapp_group2_fu" android:host="paymentresult" />-->
+<!--            </intent-filter>-->
+<!--        </activity>-->
+
         <activity
             android:name=".activities.PdfEditActivity"
             android:exported="false">
@@ -61,8 +71,21 @@
             android:name=".activities.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".activities.MomoPaymentActivity"
+            android:name=".activities.ZaloPaymentActivity"
             android:exported="false" />
+
+
+        <activity android:name=".activities.ZaloPaymentResultActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="myappscheme" android:host="paymentresult" />
+            </intent-filter>
+        </activity>
+
+
         <activity
             android:name=".activities.RegisterActivity"
             android:exported="false" />

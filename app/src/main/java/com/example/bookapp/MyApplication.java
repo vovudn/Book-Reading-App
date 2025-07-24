@@ -45,6 +45,8 @@ import java.util.HashMap;
 import java.util.Locale;
 import android.content.Context;
 
+import vn.zalopay.sdk.ZaloPaySDK;
+
 
 //application class runs before your launcher activity
 public class MyApplication extends Application {
@@ -53,6 +55,8 @@ public class MyApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        // ZaloPay SDK init
+        ZaloPaySDK.init(2554, vn.zalopay.sdk.Environment.SANDBOX);
         // Thiết lập AppCheck với Debug Provider
         com.google.firebase.appcheck.FirebaseAppCheck firebaseAppCheck = com.google.firebase.appcheck.FirebaseAppCheck.getInstance();
         firebaseAppCheck.installAppCheckProviderFactory(
