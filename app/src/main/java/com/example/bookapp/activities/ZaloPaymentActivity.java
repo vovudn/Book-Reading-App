@@ -4,10 +4,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.*;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.example.bookapp.MyApplication;
 import com.example.bookapp.R;
 import com.example.bookapp.models.CreateOrder;
 import com.google.firebase.auth.FirebaseAuth;
@@ -24,8 +26,9 @@ import okhttp3.*;
 
 public class ZaloPaymentActivity extends AppCompatActivity {
 
-    private TextView titleTv, categoryTv, dateTv, sizeTv, viewsTv, downloadsTv, pagesTv, descriptionTv, priceTv, statusTv;
-    private Button zaloPayBtn;
+    // UI
+    private Button zaloPayBtn, btnFakeCallback;
+    private TextView statusTv, titleTv, descriptionTv, categoryTv, priceTv;
     private ImageButton backBtn;
 
     private String bookId, bookTitle, bookUrl;
@@ -33,23 +36,20 @@ public class ZaloPaymentActivity extends AppCompatActivity {
 
     private static final String TAG = "ZaloPayment";
 
+    // Biến thủ công để giả debug mode (true để hiển thị nút fake, false thì không)
+    private static final boolean IS_DEBUG = true;
+    private boolean justPaid = false;
+
+
+    // Biến đánh dấu thanh toán thành công để tránh hiện toast 2 lần
+    private boolean paymentSuccessHandled = false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_zalo_payment);
 
-        titleTv = findViewById(R.id.titleTv);
-        categoryTv = findViewById(R.id.categoryTv);
-        dateTv = findViewById(R.id.dateTv);
-        sizeTv = findViewById(R.id.sizeTv);
-        viewsTv = findViewById(R.id.viewsTv);
-        downloadsTv = findViewById(R.id.downloadsTv);
-        pagesTv = findViewById(R.id.pagesTv);
-        descriptionTv = findViewById(R.id.descriptionTv);
-        priceTv = findViewById(R.id.priceTv);
-        statusTv = findViewById(R.id.statusTv);
-        zaloPayBtn = findViewById(R.id.zaloPayBtn);
-        backBtn = findViewById(R.id.backBtn);
+        initViews();
 
         bookId = getIntent().getStringExtra("bookId");
         bookTitle = getIntent().getStringExtra("bookTitle");
@@ -60,28 +60,88 @@ public class ZaloPaymentActivity extends AppCompatActivity {
         checkPaymentStatus();
 
         zaloPayBtn.setOnClickListener(v -> createOrderZaloPay());
+
+//        if (IS_DEBUG) {
+//            btnFakeCallback.setOnClickListener(v -> fakePaymentCallback());
+//            btnFakeCallback.setVisibility(View.VISIBLE);
+//        } else {
+//            btnFakeCallback.setVisibility(View.GONE);
+//        }
+
         backBtn.setOnClickListener(v -> finish());
+    }
+
+    private void initViews() {
+        titleTv = findViewById(R.id.titleTv);
+        descriptionTv = findViewById(R.id.descriptionTv);
+        categoryTv = findViewById(R.id.categoryTv);
+        priceTv = findViewById(R.id.priceTv);
+        statusTv = findViewById(R.id.statusTv);
+        zaloPayBtn = findViewById(R.id.zaloPayBtn);
+        backBtn = findViewById(R.id.backBtn);
+        btnFakeCallback = findViewById(R.id.btnFakeCallback);
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setIntent(intent);
+        handlePaymentCallback(intent);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        Log.d(TAG, "onResume: Checking payment status...");
+
+        if (justPaid) {
+            justPaid = false;  // Reset flag
+            Intent payIntent = new Intent();
+            payIntent.putExtra("payment_success", true);
+            // Gọi xử lý callback luôn
+            handlePaymentCallback(payIntent);
+
+        }
         checkPaymentStatus();
+        handlePaymentCallback(getIntent());
+    }
 
-        boolean paymentSuccess = getIntent().getBooleanExtra("payment_success", false);
-        Log.d(TAG, "onResume: payment_success = " + paymentSuccess);
+    private void handlePaymentCallback(Intent intent) {
+        if (paymentSuccessHandled) return;
+        if (intent == null) return;
 
-        if (paymentSuccess) {
-            Toast.makeText(this, "🎉 Thanh toán thành công!", Toast.LENGTH_SHORT).show();
-            // Gán lại để không hiển thị lại Toast sau
-            getIntent().putExtra("payment_success", false);
+        boolean success = intent.getBooleanExtra("payment_success", false);
+        if (success) {
+            paymentSuccessHandled = true;
+            Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+
+            if (bookUrl != null && !bookUrl.isEmpty()) {
+                MyApplication.downloadBook(this, bookId, bookTitle, bookUrl);
+            } else {
+                Toast.makeText(this, "Không có link tải sách để tải.", Toast.LENGTH_SHORT).show();
+            }
+
+            checkPaymentStatus();
+
+            intent.removeExtra("payment_success");
         }
     }
 
+
+//    private void fakePaymentCallback() {
+//        Intent intent = new Intent(Intent.ACTION_VIEW);
+//        intent.setData(Uri.parse("bookapp_group2_fu://paymentresult?returncode=1&apptransid=xxx&embeddata=%7B%22bookId%22%3A%22" + bookId + "%22%7D"));
+//        intent.setPackage(getPackageName());
+//        startActivity(intent);
+//    }
+
+
     private void loadBookInfo() {
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Books");
-        ref.child(bookId).addListenerForSingleValueEvent(new ValueEventListener() {
+        if (bookId == null) {
+            Toast.makeText(this, "Book ID không hợp lệ", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("Books").child(bookId);
+        ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot snapshot) {
                 titleTv.setText(snapshot.child("title").getValue(String.class));
@@ -89,7 +149,6 @@ public class ZaloPaymentActivity extends AppCompatActivity {
                 categoryTv.setText(snapshot.child("category").getValue(String.class));
                 priceTv.setText("Giá tải: 10.000đ (2 lượt đầu miễn phí)");
             }
-
             @Override
             public void onCancelled(DatabaseError error) {
                 Toast.makeText(ZaloPaymentActivity.this, "Lỗi tải sách", Toast.LENGTH_SHORT).show();
@@ -98,6 +157,8 @@ public class ZaloPaymentActivity extends AppCompatActivity {
     }
 
     private void checkPaymentStatus() {
+        if (currentUid == null || bookId == null) return;
+
         DatabaseReference ref = FirebaseDatabase.getInstance()
                 .getReference("Users")
                 .child(currentUid)
@@ -110,16 +171,15 @@ public class ZaloPaymentActivity extends AppCompatActivity {
             public void onDataChange(DataSnapshot snapshot) {
                 Boolean isPaid = snapshot.getValue(Boolean.class);
                 if (isPaid != null && isPaid) {
-                    statusTv.setText("✅ Đã thanh toán");
+                    statusTv.setText("Đã thanh toán");
                     zaloPayBtn.setText("Đã thanh toán");
                     zaloPayBtn.setEnabled(false);
                 } else {
-                    statusTv.setText("❌ Chưa thanh toán");
+                    statusTv.setText(" Chưa thanh toán");
                     zaloPayBtn.setText("Thanh toán ngay");
                     zaloPayBtn.setEnabled(true);
                 }
             }
-
             @Override
             public void onCancelled(DatabaseError error) {
                 statusTv.setText("Không kiểm tra được thanh toán");
@@ -131,7 +191,7 @@ public class ZaloPaymentActivity extends AppCompatActivity {
         new Thread(() -> {
             try {
                 CreateOrder orderAPI = new CreateOrder();
-                JSONObject data = orderAPI.createOrder("10000", bookId); // Giá: 10.000đ
+                JSONObject data = orderAPI.createOrder("10000", bookId);
 
                 String orderUrl = data.optString("order_url", null);
                 if (orderUrl != null && !orderUrl.isEmpty()) {
@@ -141,7 +201,6 @@ public class ZaloPaymentActivity extends AppCompatActivity {
                     runOnUiThread(() ->
                             Toast.makeText(ZaloPaymentActivity.this, "ZaloPay lỗi: " + message, Toast.LENGTH_LONG).show());
                 }
-
             } catch (Exception e) {
                 e.printStackTrace();
                 runOnUiThread(() ->
@@ -151,24 +210,8 @@ public class ZaloPaymentActivity extends AppCompatActivity {
     }
 
     private void openZaloPay(String orderUrl) {
+        justPaid = true;
         Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(orderUrl));
         startActivity(intent);
-    }
-
-    // Không cần dùng trong lớp này nữa, để lại nếu dùng custom HMAC
-    private String hmacSha256(String data, String key) {
-        try {
-            SecretKeySpec secretKeySpec = new SecretKeySpec(key.getBytes(), "HmacSHA256");
-            Mac mac = Mac.getInstance("HmacSHA256");
-            mac.init(secretKeySpec);
-            byte[] hash = mac.doFinal(data.getBytes());
-            StringBuilder result = new StringBuilder();
-            for (byte b : hash) {
-                result.append(String.format("%02x", b));
-            }
-            return result.toString();
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
     }
 }

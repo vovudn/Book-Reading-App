@@ -1,3 +1,4 @@
+
 package com.example.bookapp.activities;
 
 import android.app.Activity;
@@ -11,12 +12,7 @@ import androidx.annotation.Nullable;
 
 import com.example.bookapp.MyApplication;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ServerValue;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import org.json.JSONObject;
 
@@ -29,7 +25,7 @@ public class ZaloPaymentResultActivity extends Activity {
 
     private static final String TAG = "ZaloPaymentResult";
 
-    // Bạn có thể config số lượt tải tối đa sau khi trả tiền ở đây:
+    // Số lượt tải tối đa sau khi thanh toán
     private static final int PAID_DOWNLOAD_LIMIT = 3;
 
     @Override
@@ -37,6 +33,7 @@ public class ZaloPaymentResultActivity extends Activity {
         super.onCreate(savedInstanceState);
         Log.d(TAG, "ZaloPaymentResultActivity started");
         Toast.makeText(this, "Callback arrived", Toast.LENGTH_SHORT).show();
+
         Uri uri = getIntent().getData();
         if (uri == null) {
             Log.e(TAG, "No data from intent");
@@ -45,7 +42,7 @@ public class ZaloPaymentResultActivity extends Activity {
         }
 
         try {
-            String returnCode = uri.getQueryParameter("returncode"); // "1" => success
+            String returnCode = uri.getQueryParameter("returncode"); // "1" là thành công
             String appTransId = uri.getQueryParameter("apptransid");
             String zpTransId  = uri.getQueryParameter("zptransid");
             String embedDataStr = uri.getQueryParameter("embeddata");
@@ -56,7 +53,7 @@ public class ZaloPaymentResultActivity extends Activity {
             Log.d(TAG, "embeddata(raw)=" + embedDataStr);
 
             if (embedDataStr != null) {
-                // Phòng trường hợp embeddata bị URL-encode
+                // Giải mã URL-encoded nếu cần
                 embedDataStr = URLDecoder.decode(embedDataStr, StandardCharsets.UTF_8.name());
                 Log.d(TAG, "embeddata(decoded)=" + embedDataStr);
             }
@@ -70,12 +67,10 @@ public class ZaloPaymentResultActivity extends Activity {
             final String bookId;
             if (embedDataStr != null) {
                 JSONObject embedData = new JSONObject(embedDataStr);
-                bookId = embedData.optString("bookId", getIntent().getStringExtra("bookId"));
+                bookId = embedData.optString("bookId", null);
             } else {
-                bookId = getIntent().getStringExtra("bookId");
+                bookId = null;
             }
-
-
 
             if (bookId == null) {
                 Toast.makeText(this, "Không lấy được bookId từ callback!", Toast.LENGTH_SHORT).show();
@@ -108,16 +103,18 @@ public class ZaloPaymentResultActivity extends Activity {
                     .addOnSuccessListener(unused -> {
                         Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
 
-                        // Lấy dữ liệu sách để tải
+                        // Lấy thông tin sách để tải
                         DatabaseReference bookRef = FirebaseDatabase.getInstance().getReference("Books").child(bookId);
                         bookRef.addListenerForSingleValueEvent(new ValueEventListener() {
                             @Override
                             public void onDataChange(DataSnapshot snapshot) {
                                 String bookTitle = snapshot.child("title").getValue(String.class);
-                                String bookUrl = snapshot.child("url").getValue(String.class); // Tên trường link PDF trong Firebase
+                                String bookUrl = snapshot.child("url").getValue(String.class);
+
+                                // Tải sách (nếu bạn đã implement trong MyApplication)
                                 MyApplication.downloadBook(ZaloPaymentResultActivity.this, bookId, bookTitle, bookUrl);
 
-                                // Tiếp tục chuyển sang PdfDetailActivity
+                                // Chuyển về PdfDetailActivity, gắn flag để update UI thanh toán thành công
                                 Intent intent = new Intent(ZaloPaymentResultActivity.this, PdfDetailActivity.class);
                                 intent.putExtra("bookId", bookId);
                                 intent.putExtra("payment_success", true);
@@ -129,20 +126,18 @@ public class ZaloPaymentResultActivity extends Activity {
                             @Override
                             public void onCancelled(DatabaseError error) {
                                 Log.e(TAG, "Lỗi lấy dữ liệu sách để tải");
-                                // Xử lý lỗi nếu muốn
+                                // Có thể thêm xử lý lỗi
                             }
                         });
                     })
                     .addOnFailureListener(e -> {
-                        Log.e(TAG, "updateChildren error", e);
+                        Log.e(TAG, "Lỗi cập nhật thanh toán", e);
                         Toast.makeText(this, "Lỗi cập nhật thanh toán!", Toast.LENGTH_SHORT).show();
                         finish();
                     });
 
-
-
         } catch (Exception e) {
-            Log.e(TAG, "Handle callback failed", e);
+            Log.e(TAG, "Lỗi xử lý callback", e);
             Toast.makeText(this, "Lỗi xử lý callback!", Toast.LENGTH_SHORT).show();
             finish();
         }
