@@ -200,7 +200,7 @@ public class AdapterPdfUser extends RecyclerView.Adapter<AdapterPdfUser.HolderPd
                     null
             );
         }else {
-            // 👇 Trong khi filter, ẩn pdfView & progress
+
             holder.pdfView.setVisibility(View.GONE);
             holder.progressBar.setVisibility(View.GONE);
         }

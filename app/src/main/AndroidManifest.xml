@@ -33,14 +33,11 @@
         <activity
             android:name=".activities.PdfDetailActivity"
             android:exported="false" />
+
+
         <activity
             android:name=".activities.PdfEditActivity"
             android:exported="false">
-
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
         </activity>
         <activity
             android:name=".activities.PdfListAdminActivity"
@@ -61,6 +58,23 @@
             android:name=".activities.LoginActivity"
             android:exported="false" />
         <activity
+            android:name=".activities.ZaloPaymentActivity"
+            android:exported="false" />
+
+
+        <activity android:name=".activities.ZaloPaymentResultActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="bookapp_group2_fu" android:host="paymentresult" />
+
+            </intent-filter>
+        </activity>
+
+
+        <activity
             android:name=".activities.RegisterActivity"
             android:exported="false" />
         <activity
@@ -79,6 +93,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+<!--        <activity-->
+<!--            android:name="vn.momo.momosdk.MomoWebActivity"-->
+<!--            android:configChanges="orientation|screenSize"-->
+<!--            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>-->
+
     </application>
 
 </manifest>

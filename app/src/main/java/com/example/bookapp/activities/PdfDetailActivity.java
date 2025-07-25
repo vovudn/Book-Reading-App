@@ -2,6 +2,7 @@ package com.example.bookapp.activities;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
@@ -18,11 +19,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.example.bookapp.MyApplication;
 import com.example.bookapp.R;
 import com.example.bookapp.adapters.AdapterComment;
-import com.example.bookapp.adapters.AdapterPdfFavorite;
 import com.example.bookapp.databinding.ActivityPdfDetailBinding;
 import com.example.bookapp.databinding.DialogCommentAddBinding;
 import com.example.bookapp.models.ModelComment;
-import com.example.bookapp.models.ModelPdf;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -31,6 +30,8 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -101,46 +102,23 @@ public class PdfDetailActivity extends AppCompatActivity {
             }
         });
 
-
-        //handle click, download pdf
-        // handle click, download pdf
-        binding.downloadBookBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Log.d(TAG_DOWNLOAD, "onClick: Checking permission");
-
-//                if (ContextCompat.checkSelfPermission(
-//                        PdfDetailActivity.this,
-//                        Manifest.permission.WRITE_EXTERNAL_STORAGE)
-//                        == PackageManager.PERMISSION_GRANTED) {
-//
-//                    Log.d(TAG_DOWNLOAD, "onClick: Permission already granted, can download book");
-//
-//                    MyApplication.downloadBook(
-//                            PdfDetailActivity.this,
-//                            "" + bookId,
-//                            "" + bookTitle,
-//                            "" + bookUrl
-//                    );
-//
-//                } else {
-//                    Log.d(TAG_DOWNLOAD, "onClick: Permission was not granted, request permission...");
-//                    requestPermissionLauncher.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE);
-//                }
-                binding.downloadBookBtn.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        Log.d(TAG_DOWNLOAD, "onClick: Bắt đầu tải không cần permission (API >= 29)");
-                        MyApplication.downloadBook(
-                                PdfDetailActivity.this,
-                                bookId,
-                                bookTitle,
-                                bookUrl
-                        );
-                    }
-                });
-
+//        //handle click, download pdf
+//        binding.downloadBookBtn.setOnClickListener(v -> {
+//            Log.d(TAG_DOWNLOAD, "onClick: Bắt đầu tải không cần permission (API >= 29)");
+//            MyApplication.downloadBook(
+//                    PdfDetailActivity.this,
+//                    bookId,
+//                    bookTitle,
+//                    bookUrl
+//            );
+//        });
+        binding.downloadBookBtn.setOnClickListener(v -> {
+            if (firebaseAuth.getCurrentUser() == null) {
+                Toast.makeText(this, "Bạn cần đăng nhập để tải sách", Toast.LENGTH_SHORT).show();
+                return;
             }
+
+            checkPaymentAndDownload(bookId, bookTitle, bookUrl);
         });
 
         binding.favoriteBtn.setOnClickListener(new View.OnClickListener() {
@@ -171,7 +149,101 @@ public class PdfDetailActivity extends AppCompatActivity {
                 }
             }
         });
+        handleZaloPayCallback(getIntent());
     }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        handleZaloPayCallback(intent);
+    }
+
+    private void handleZaloPayCallback(Intent intent) {
+        Uri data = intent.getData();
+        if (data != null && "bookapp_group2_fu".equals(data.getScheme())) {
+            if ("paymentresult".equals(data.getHost()) && "1".equals(data.getQueryParameter("returncode"))) {
+
+                try {
+                    String embedDataStr = data.getQueryParameter("embeddata");
+                    final String bookId;
+
+                    if (embedDataStr != null) {
+                        JSONObject embedData = new JSONObject(embedDataStr);
+                        bookId = embedData.optString("bookId", null);
+                    } else {
+                        bookId = null;
+                    }
+
+
+                    if (bookId != null) {
+                        // Đánh dấu isPaid = true trong Firebase
+                        String uid = FirebaseAuth.getInstance().getUid();
+                        FirebaseDatabase.getInstance()
+                                .getReference("Users")
+                                .child(uid)
+                                .child("Downloads")
+                                .child(bookId)
+                                .child("isPaid")
+                                .setValue(true)
+                                .addOnSuccessListener(unused -> {
+                                    Toast.makeText(this, "✅ Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+                                    // Optionally reload UI
+                                    startActivity(new Intent(this, PdfViewActivity.class)
+                                            .putExtra("bookId", bookId));
+
+                                });
+                    } else {
+                        Toast.makeText(this, "Không thể xác định sách vừa thanh toán!", Toast.LENGTH_SHORT).show();
+                    }
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Toast.makeText(this, "❌ Thanh toán thất bại hoặc bị hủy!", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+//    @Override
+//    protected void onNewIntent(Intent intent) {
+//        super.onNewIntent(intent);
+//        setIntent(intent); // Cập nhật intent mới nếu dùng singleTop
+//
+//        Uri data = intent.getData();
+//        if (data != null && data.toString().contains("returncode=1")) {
+//            try {
+//                Uri uri = Uri.parse(data.toString());
+//                String embedDataStr = uri.getQueryParameter("embeddata");
+//                if (embedDataStr != null) {
+//                    JSONObject embedData = new JSONObject(embedDataStr);
+//                    String bookId = embedData.optString("bookId");
+//
+//                    if (bookId != null && !bookId.isEmpty()) {
+//                        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+//                        FirebaseDatabase.getInstance()
+//                                .getReference("Users")
+//                                .child(uid)
+//                                .child("Downloads")
+//                                .child(bookId)
+//                                .child("isPaid")
+//                                .setValue(true)
+//                                .addOnSuccessListener(unused -> {
+//                                    Toast.makeText(this, "Thanh toán thành công!", Toast.LENGTH_SHORT).show();
+//                                    // Làm gì đó như hiển thị sách
+//                                });
+//                    } else {
+//                        Toast.makeText(this, "Không tìm thấy bookId!", Toast.LENGTH_SHORT).show();
+//                    }
+//                }
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//                Toast.makeText(this, "Lỗi xử lý kết quả thanh toán!", Toast.LENGTH_SHORT).show();
+//            }
+//        } else if (data != null && data.toString().contains("returncode=0")) {
+//            Toast.makeText(this, "Thanh toán thất bại!", Toast.LENGTH_SHORT).show();
+//        }
+//    }
 
     private void loadComments() {
         //init arraylist before adding data into it
@@ -383,5 +455,35 @@ public class PdfDetailActivity extends AppCompatActivity {
                     }
                 });
     }
+
+    private void checkPaymentAndDownload(String bookId, String bookTitle, String bookUrl) {
+        DatabaseReference ref = FirebaseDatabase.getInstance()
+                .getReference("Users")
+                .child(firebaseAuth.getUid())
+                .child("PurchasedBooks")
+                .child(bookId);
+
+        ref.get().addOnSuccessListener(snapshot -> {
+            if (snapshot.exists()) {
+                Long count = snapshot.child("downloadCount").getValue(Long.class);
+                if (count == null) count = 0L;
+
+                if (count >= 3) {
+                    Toast.makeText(this, "Bạn đã tải sách này 3 lần rồi!", Toast.LENGTH_SHORT).show();
+                } else {
+                    MyApplication.downloadBook(this, bookId, bookTitle, bookUrl);
+                    ref.child("downloadCount").setValue(count + 1);
+                }
+            } else {
+                // Chưa thanh toán → chuyển qua trang thanh toán
+                Intent intent = new Intent(this, ZaloPaymentActivity.class);
+                intent.putExtra("bookId", bookId);
+                intent.putExtra("bookTitle", bookTitle);
+                intent.putExtra("bookUrl", bookUrl);
+                startActivity(intent);
+            }
+        });
+    }
+
 
 }
