@@ -76,10 +76,10 @@ public class ZaloPaymentActivity extends AppCompatActivity {
         descriptionTv = findViewById(R.id.descriptionTv);
         categoryTv = findViewById(R.id.categoryTv);
         priceTv = findViewById(R.id.priceTv);
-        statusTv = findViewById(R.id.statusTv);
+        //statusTv = findViewById(R.id.statusTv);
         zaloPayBtn = findViewById(R.id.zaloPayBtn);
         backBtn = findViewById(R.id.backBtn);
-        btnFakeCallback = findViewById(R.id.btnFakeCallback);
+        //btnFakeCallback = findViewById(R.id.btnFakeCallback);
     }
 
     @Override
@@ -147,7 +147,7 @@ public class ZaloPaymentActivity extends AppCompatActivity {
                 titleTv.setText(snapshot.child("title").getValue(String.class));
                 descriptionTv.setText(snapshot.child("description").getValue(String.class));
                 categoryTv.setText(snapshot.child("category").getValue(String.class));
-                priceTv.setText("Giá tải: 10.000đ (2 lượt đầu miễn phí)");
+                priceTv.setText("Giá tải: 10.000đ");
             }
             @Override
             public void onCancelled(DatabaseError error) {

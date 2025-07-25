@@ -84,54 +84,7 @@ public class PdfViewActivity extends AppCompatActivity {
                 });
     }
 
-//    private void loadBookFromUrl(String pdfUrl) {
-//        Log.d(TAG, "loadBookFromUrl: GetPDF from storage");
-//        StorageReference reference = FirebaseStorage.getInstance().getReferenceFromUrl(pdfUrl);
-//        reference.getBytes(Constants.MAX_BYTES_PDF)
-//                .addOnSuccessListener(new OnSuccessListener<byte[]>() {
-//                    @Override
-//                    public void onSuccess(byte[] bytes) {
-//                        // load pdf using bytes
-//                        binding.pdfView.fromBytes(bytes)
-//                                .swipeHorizontal(false) // set false to scroll vertical, true to swipe horizontal
-//                                .onPageChange(new OnPageChangeListener() {
-//                                    @Override
-//                                    public void onPageChanged(int page, int pageCount) {
-//                                        // Set current page and total pages in toolbar subtitle
-//                                        int currentPage = page + 1; // page starts from 0
-//                                        binding.toolbarSubtitleTv.setText(currentPage + "/" + pageCount);
-//                                        Log.d(TAG, "onPageChanged:" +currentPage + "/" + pageCount);
-//                                    }
-//                                })
-//                                .onError(new OnErrorListener() {
-//                                    @Override
-//                                    public void onError(Throwable t) {
-//                                        Log.d(TAG, "onError: "+t.getMessage());
-//                                        Toast.makeText(PdfViewActivity.this, "" + t.getMessage(), Toast.LENGTH_SHORT).show();
-//                                    }
-//                                })
-//                                .onPageError(new OnPageErrorListener() {
-//                                    @Override
-//                                    public void onPageError(int page, Throwable t) {
-//                                        Log.d(TAG, "onError: "+t.getMessage());
-//                                        Toast.makeText(PdfViewActivity.this, "Error on page" + page+""+t.getMessage(), Toast.LENGTH_SHORT).show();
-//                                    }
-//                                })
-//                                .load();
-//
-//
-//                        binding.progressBar.setVisibility(View.GONE);
-//                    }
-//                }).addOnFailureListener(new OnFailureListener() {
-//
-//                    @Override
-//                    public void onFailure(@NonNull Exception e) {
-//                        Log.d(TAG, "onFailure: " +e.getMessage());
-//                        //failed to load book
-//                        binding.progressBar.setVisibility(View.GONE);
-//                    }
-//                });
-//    }
+
 
     private void loadBookFromUrl(String pdfUrl) {
         Log.d(TAG, "loadBookFromUrl: GetPDF from storage");

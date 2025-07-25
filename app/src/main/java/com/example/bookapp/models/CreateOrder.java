@@ -34,7 +34,7 @@ public class CreateOrder {
             Amount = amount;
             AppTransId = Helpers.getAppTransId();
 
-            EmbedData = String.format("{\"app_scheme\":\"myappscheme\", \"bookId\":\"%s\"}", bookId);
+            EmbedData = String.format("{\"app_scheme\":\"bookapp_group2_fu\", \"bookId\":\"%s\"}", bookId);
 
 
             Log.d("CreateOrder", "EmbedData = " + EmbedData);
